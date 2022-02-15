@@ -11,21 +11,23 @@ import shutil
 import json
 from make_plots import create
 
+os.environ['CUDA_VISIBLE_DEVICES'] = str(1)
 
 # Dict to huggingface name of the model or local directory containing model (sloberta)
 pretrained_models = {
-    "sloberta": "./models/pretrained/sloberta",
+    # "sloberta": "./models/pretrained/sloberta",
     "crosloengual": "EMBEDDIA/crosloengual-bert",
-    "multilingual": "bert-base-multilingual-cased",
-    "roberta": "roberta-base",
+    # "multilingual": "bert-base-multilingual-cased",
+    # "roberta": "roberta-base",
+    # "xlm-roberta-base": 'xlm-roberta-base'
 }
 
 
-pretrained = pretrained_models["sloberta"]  # model to transformers model
+pretrained = pretrained_models["crosloengual"]  # model to transformers model
 output_name = list(pretrained_models.keys())[list(pretrained_models.values()).index(pretrained)]  # name of the model
-name = "human_translation"  # name of the directory containing datasets and config files
+name = "slobench"  # name of the directory containing datasets and config files
 
-tasks = ["multirc"]  # list of tasks - can also be ["boolq", "cb", "copa", "multirc", "rte", "wsc"] for multitask
+tasks = ["wsc"]  # list of tasks - can also be ["boolq", "cb", "copa", "multirc", "rte", "wsc"] for multitask
 
 # name of output directory
 if len(tasks) == 1:
@@ -37,8 +39,8 @@ else:
 
 # Here is where we set batch size and number of epochs and declare whether we want to use GPU or not. In the phases
 # list we declare which phase should the tokenizer tokenize.
-train_batch_size = 4
-eval_batch_size = 8
+train_batch_size = 1
+eval_batch_size = 1
 epochs = 10
 num_gpus = 1
 phases = ["train", "val", "test", "val_test"]
@@ -90,7 +92,7 @@ export_model.export_model(
 # Tokenize and cache each task
 for task_name in tasks:
     tokenize_and_cache.main(tokenize_and_cache.RunConfiguration(
-        task_config_path=f"./tasks/{name}/configs/{task_name}_config.json",
+        task_config_path=f"./tasks/configs/{name}/{task_name}_config.json",
         hf_pretrained_model_name_or_path=pretrained,
         output_dir=f"./cache/{task_name}",
         phases=phases,
@@ -101,7 +103,7 @@ for task_name in tasks:
 
 # Make configuration
 jiant_run_config = configurator.SimpleAPIMultiTaskConfigurator(
-    task_config_base_path=f"./tasks/{name}/configs",
+    task_config_base_path=f"./tasks/configs/{name}",
     task_cache_base_path="./cache",
     train_task_name_list=tasks,
     val_task_name_list=tasks,
