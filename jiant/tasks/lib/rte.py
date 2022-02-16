@@ -90,8 +90,8 @@ class RteTask(SuperGlueMixin, GlueMixin, Task):
     def get_test_examples(self):
         return self._create_examples(lines=read_jsonl(self.test_path), set_type="test")
 
-    def get_val_test_examples(self):
-        return self._create_examples(lines=read_jsonl(self.val_test_path), set_type="val_test")
+    def get_test_with_answers_examples(self):
+        return self._create_examples(lines=read_jsonl(self.test_with_answers_path), set_type="test_with_answers")
 
     @classmethod
     def _create_examples(cls, lines, set_type):

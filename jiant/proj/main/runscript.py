@@ -29,12 +29,12 @@ class RunConfiguration(zconf.RunConfig):
     # === Running Setup === #
     do_train = zconf.attr(action="store_true")
     do_val = zconf.attr(action="store_true")
-    do_val_test = zconf.attr(action="store_true")
+    do_test_with_answers = zconf.attr(action="store_true")
     do_save = zconf.attr(action="store_true")
     do_save_last = zconf.attr(action="store_true")
     do_save_best = zconf.attr(action="store_true")
     write_val_preds = zconf.attr(action="store_true")
-    write_val_test_preds = zconf.attr(action="store_true")
+    write_test_with_answers_preds = zconf.attr(action="store_true")
     write_test_preds = zconf.attr(action="store_true")
     eval_every_steps = zconf.attr(type=int, default=0)
     save_every_steps = zconf.attr(type=int, default=0)
@@ -213,24 +213,24 @@ def run_loop(args: RunConfiguration, checkpoint=None):
                 path=os.path.join(args.output_dir, "test_preds.p"),
             )
 
-        if args.do_val_test:
-            val_test_results_dict = runner.run_val_test(
-                task_name_list=runner.jiant_task_container.task_run_config.val_test_task_list,
+        if args.do_test_with_answers:
+            test_with_answers_results_dict = runner.run_test_with_answers(
+                task_name_list=runner.jiant_task_container.task_run_config.test_with_answers_task_list,
                 return_preds=args.write_val_preds,
             )
-            jiant_evaluate.write_val_test_results(
-                val_test_results_dict=val_test_results_dict,
+            jiant_evaluate.write_test_with_answers_results(
+                test_with_answers_results_dict=test_with_answers_results_dict,
                 metrics_aggregator=runner.jiant_task_container.metrics_aggregator,
                 output_dir=args.output_dir,
                 verbose=True,
             )
-            if args.write_val_test_preds:
+            if args.write_test_with_answers_preds:
                 jiant_evaluate.write_preds(
-                    eval_results_dict=val_test_results_dict,
-                    path=os.path.join(args.output_dir, "val_test_preds.p"),
+                    eval_results_dict=test_with_answers_results_dict,
+                    path=os.path.join(args.output_dir, "test_with_answers_preds.p"),
                 )
         else:
-            assert not args.write_val_test_preds
+            assert not args.write_test_with_answers_preds
 
     if (
         not args.keep_checkpoint_when_done

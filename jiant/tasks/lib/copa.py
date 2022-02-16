@@ -52,8 +52,8 @@ class CopaTask(SuperGlueMixin, mc_template.AbstractMultipleChoiceTask):
     def get_test_examples(self):
         return self._create_examples(lines=read_json_lines(self.test_path), set_type="test")
 
-    def get_val_test_examples(self):
-        return self._create_examples(lines=read_json_lines(self.val_test_path), set_type="val_test")
+    def get_test_with_answers_examples(self):
+        return self._create_examples(lines=read_json_lines(self.test_with_answers_path), set_type="test_with_answers")
 
     @classmethod
     def _create_examples(cls, lines, set_type):

@@ -13,7 +13,7 @@ for mode in ["slobench"]:
                 "train": f"{os.getcwd()}/tasks/data/{mode}/{task}/train.jsonl",
                 "val": f"{os.getcwd()}/tasks/data/{mode}/{task}/val.jsonl",
                 "test": f"{os.getcwd()}/tasks/data/{mode}/{task}/test.jsonl",
-                "val_test": f"{os.getcwd()}/tasks/data/{mode}/{task}/test_answered.jsonl",
+                "test_with_answers": f"{os.getcwd()}/tasks/data/{mode}/{task}/test_answered.jsonl",
             },
             "name": f"{task}"
         }

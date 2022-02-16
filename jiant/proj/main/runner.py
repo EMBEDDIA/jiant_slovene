@@ -150,19 +150,19 @@ class JiantRunner:
             )
         return evaluate_dict
 
-    def run_val_test(self, task_name_list, use_subset=None, return_preds=False, verbose=True):
+    def run_test_with_answers(self, task_name_list, use_subset=None, return_preds=False, verbose=True):
         evaluate_dict = {}
-        val_test_dataloader_dict = self.get_val_test_dataloader_dict(
+        test_with_answers_dataloader_dict = self.get_test_with_answers_dataloader_dict(
             task_name_list=task_name_list, use_subset=use_subset
         )
-        val_test_labels_dict = self.get_val_test_labels_dict(
+        test_with_answers_labels_dict = self.get_test_with_answers_labels_dict(
             task_name_list=task_name_list, use_subset=use_subset
         )
         for task_name in task_name_list:
             task = self.jiant_task_container.task_dict[task_name]
-            evaluate_dict[task_name] = run_val_test(
-                val_test_dataloader=val_test_dataloader_dict[task_name],
-                val_test_labels=val_test_labels_dict[task_name],
+            evaluate_dict[task_name] = run_test_with_answers(
+                test_with_answers_dataloader=test_with_answers_dataloader_dict[task_name],
+                test_with_answers_labels=test_with_answers_labels_dict[task_name],
                 jiant_model=self.jiant_model,
                 task=task,
                 device=self.device,
@@ -239,21 +239,21 @@ class JiantRunner:
             phase=PHASE.TEST,
         )
 
-    def get_val_test_dataloader_dict(self, task_name_list, use_subset=False):
+    def get_test_with_answers_dataloader_dict(self, task_name_list, use_subset=False):
         return self._get_eval_dataloader_dict(
-            phase="val_test", task_name_list=task_name_list, use_subset=use_subset,
+            phase="test_with_answers", task_name_list=task_name_list, use_subset=use_subset,
         )
 
-    def get_val_test_labels_dict(self, task_name_list, use_subset=False):
-        val_test_labels_dict = {}
+    def get_test_with_answers_labels_dict(self, task_name_list, use_subset=False):
+        test_with_answers_labels_dict = {}
         for task_name in task_name_list:
             task_specific_config = self.jiant_task_container.task_specific_configs[task_name]
-            val_test_labels_cache = self.jiant_task_container.task_cache_dict[task_name]["val_test_labels"]
-            val_test_labels = val_test_labels_cache.get_all()
+            test_with_answers_labels_cache = self.jiant_task_container.task_cache_dict[task_name]["test_with_answers_labels"]
+            test_with_answers_labels = test_with_answers_labels_cache.get_all()
             if use_subset:
-                val_test_labels = val_test_labels[: task_specific_config.eval_subset_num]
-            val_test_labels_dict[task_name] = val_test_labels
-        return val_test_labels_dict
+                test_with_answers_labels = test_with_answers_labels[: task_specific_config.eval_subset_num]
+            test_with_answers_labels_dict[task_name] = test_with_answers_labels
+        return test_with_answers_labels_dict
 
     def complex_backpropagate(self, loss, gradient_accumulation_steps):
         return complex_backpropagate(
@@ -357,9 +357,9 @@ def run_val(
     return output
 
 
-def run_val_test(
-    val_test_dataloader,
-    val_test_labels,
+def run_test_with_answers(
+    test_with_answers_dataloader,
+    test_with_answers_labels,
     jiant_model: JiantModel,
     task,
     device,
@@ -371,7 +371,7 @@ def run_val_test(
     #   val_dataloader contains mostly PyTorch-relevant info
     #   val_labels might contain more details information needed for full evaluation
     if isinstance(task, jiant.tasks.lib.record_lemma.ReCoRDTaskLemma):
-        task.state = "val_test"
+        task.state = "test_with_answers"
     if not local_rank == -1:
         return
     jiant_model.eval()
@@ -381,7 +381,7 @@ def run_val_test(
     eval_accumulator = evaluation_scheme.get_accumulator()
 
     for step, (batch, batch_metadata) in enumerate(
-        maybe_tqdm(val_test_dataloader, desc=f"Eval ({task.name}, TestVal)", verbose=verbose)
+        maybe_tqdm(test_with_answers_dataloader, desc=f"Eval ({task.name}, TestAnswers)", verbose=verbose)
     ):
         batch = batch.to(device)
 
@@ -411,7 +411,7 @@ def run_val_test(
         "accumulator": eval_accumulator,
         "loss": eval_loss,
         "metrics": evaluation_scheme.compute_metrics_from_accumulator(
-            task=task, accumulator=eval_accumulator, labels=val_test_labels, tokenizer=tokenizer,
+            task=task, accumulator=eval_accumulator, labels=test_with_answers_labels, tokenizer=tokenizer,
         ),
     }
     if return_preds:

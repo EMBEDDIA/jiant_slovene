@@ -23,9 +23,9 @@ also use conda.
 Once the environment is set you should create a new directory named "tasks" in the same directory as this project.
 This directory will contain your datasets. See tasks_directory_structure.txt as an example on how to set the "tasks" directory for machine translated version
 of SuperGlue. {task_name}_config.json must contain absolute paths to the directories that contain dataset files
-(train.jsonl, val.jsonl, test.jsonl, val_test.jsonl). For example boolq_config.json for machine translated SuperGLUE:
+(train.jsonl, val.jsonl, test.jsonl, test_with_answers.jsonl). For example boolq_config.json for machine translated SuperGLUE:
 ```
-{"task": "boolq", "paths": {"train": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/train.jsonl", "val": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/val.jsonl", "test": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/test.jsonl", "val_test": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/val_test.jsonl"}, "name": "boolq"}
+{"task": "boolq", "paths": {"train": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/train.jsonl", "val": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/val.jsonl", "test": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/test.jsonl", "test_with_answers": "/home/matic/Desktop/graphs_jiant/tasks/data/machine_translation/boolq/test_with_answers.jsonl"}, "name": "boolq"}
 ```
 All directories and tasks must be in lower case. For easier creation of config files see script "config_file.py".
 
@@ -58,7 +58,7 @@ the ./runs" directory to:
 ```
 This can be disabled or modified according to the needs of anyone.
 
-We have also added the "val_test" phase, which can be run at the end of training. This "val_test.jsonl" contains the solved "test.jsonl"
+We have also added the "test_with_answers" phase, which can be run at the end of training. This "test_with_answers.jsonl" contains the solved "test.jsonl"
 examples of a task and it calculates the metrics on those examples.
 
 The saved models can be used again to train or simply just to do evaluation. If you wish to use a saved model
@@ -66,7 +66,7 @@ you have to set variable " model_load_mode='partial' " instead of 'from_transfor
 For clarification see "main_eval_saved_model.py". If you do not wish to train the model again set variable "do_train=False".
 
 After each run there are some file that are created (in "./runs" or in the backup directory) that contain information about the run
-like val_metrics.json and val_test_metrics.json contain the metrics of evaluations on "val" and "val_test" phase, loss_train.zlog contains
+like val_metrics.json and test_with_answers_metrics.json contain the metrics of evaluations on "val" and "test_with_answers" phase, loss_train.zlog contains
 information about the loss after each step etc.
 
 We recommend a quick run of the main.py (for example epoch=0.1) and see for yourself all the output files jiant creates.

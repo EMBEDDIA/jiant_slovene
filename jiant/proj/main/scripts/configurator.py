@@ -245,7 +245,7 @@ class SimpleAPIMultiTaskConfigurator(zconf.RunConfig):
     train_val_task_name_list = zconf.attr(type=str, default=None)
     val_task_name_list = zconf.attr(type=str, default=None)
     test_task_name_list = zconf.attr(type=str, default=None)
-    val_test_task_name_list = zconf.attr(type=str, default=None)
+    test_with_answers_task_name_list = zconf.attr(type=str, default=None)
     train_batch_size = zconf.attr(type=int, required=True)
     eval_batch_multiplier = zconf.attr(type=int, default=None)
     eval_batch_size = zconf.attr(type=int, default=None)
@@ -275,7 +275,7 @@ class SimpleAPIMultiTaskConfigurator(zconf.RunConfig):
             "train": self.parse_task_name_list(self.train_task_name_list),
             "val": self.parse_task_name_list(self.val_task_name_list),
             "test": self.parse_task_name_list(self.test_task_name_list),
-            "val_test": self.parse_task_name_list(self.val_test_task_name_list),
+            "test_with_answers": self.parse_task_name_list(self.test_with_answers_task_name_list),
         }
         if self.train_val_task_name_list is None:
             task_name_list_dict["train_val"] = task_name_list_dict["train"]
@@ -334,12 +334,12 @@ class SimpleAPIMultiTaskConfigurator(zconf.RunConfig):
                     task_cache_config_dict[task_name]["test"] = os.path.join(
                         self.task_cache_base_path, task_name, "test",
                     )
-                if task_name in task_name_list_dict["val_test"]:
-                    task_cache_config_dict[task_name]["val_test"] = os.path.join(
-                        self.task_cache_base_path, task_name, "val_test",
+                if task_name in task_name_list_dict["test_with_answers"]:
+                    task_cache_config_dict[task_name]["test_with_answers"] = os.path.join(
+                        self.task_cache_base_path, task_name, "test_with_answers",
                     )
-                    task_cache_config_dict[task_name]["val_test_labels"] = os.path.join(
-                        self.task_cache_base_path, task_name, "val_test_labels",
+                    task_cache_config_dict[task_name]["test_with_answers_labels"] = os.path.join(
+                        self.task_cache_base_path, task_name, "test_with_answers_labels",
                     )
         elif isinstance(self.task_cache_config_dict, str):
             assert self.task_cache_base_path is None
@@ -438,7 +438,7 @@ class SimpleAPIMultiTaskConfigurator(zconf.RunConfig):
                 "train_val_task_list": task_name_list_dict["train_val"],
                 "val_task_list": task_name_list_dict["val"],
                 "test_task_list": task_name_list_dict["test"],
-                "val_test_task_list": task_name_list_dict["val_test"]
+                "test_with_answers_task_list": task_name_list_dict["test_with_answers"]
             },
             "metric_aggregator_config": {"metric_aggregator_type": "EqualMetricAggregator"},
         }

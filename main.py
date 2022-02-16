@@ -22,12 +22,11 @@ pretrained_models = {
     "xlm-roberta-base": 'xlm-roberta-base',
 }
 
-
 pretrained = pretrained_models["crosloengual"]  # model to transformers model
 output_name = list(pretrained_models.keys())[list(pretrained_models.values()).index(pretrained)]  # name of the model
 name = "slobench"  # name of the directory containing datasets and config files
 
-tasks = ["wsc"]  # list of tasks - can also be ["boolq", "cb", "copa", "multirc", "rte", "wsc"] for multitask
+tasks = ["boolq"]  # list of tasks - can also be ["boolq", "cb", "copa", "multirc", "rte", "wsc"] for multitask
 
 # name of output directory
 if len(tasks) == 1:
@@ -43,7 +42,7 @@ train_batch_size = 4
 eval_batch_size = 4
 epochs = 10
 num_gpus = 1
-phases = ["train", "val", "test", "val_test"]
+phases = ["train", "val", "test", "test_with_answers"]
 
 # Here we set if we want to plot a graph based on validation results and loss and number of steps after which we
 # want to check. If graph per epoch is True then this script will calculate the number of steps in one epoch and
@@ -69,8 +68,7 @@ max_grad_norm = 1.0
 eval_every_steps = 0
 no_improvements_for_n_evals = 0
 eval_subset_num = None
-# model_load_mode = "from_transformers"  # If we wish to load saved model from jiant we have to set model_load_mode to "partial"
-model_load_mode = "partial"
+model_load_mode = "from_transformers"  # If we wish to load saved model from jiant we have to set model_load_mode to "partial" -> check main_eval_saved_model.py
 
 do_train = True
 do_val = True
@@ -78,7 +76,7 @@ validate_test = True
 force_overwrite = True
 write_test_preds = True
 write_val_preds = True
-write_val_test_preds = True
+write_test_with_answers_preds = True
 do_save = False
 do_save_best = True
 do_save_last = False
@@ -109,7 +107,7 @@ jiant_run_config = configurator.SimpleAPIMultiTaskConfigurator(
     train_task_name_list=tasks,
     val_task_name_list=tasks,
     test_task_name_list=tasks,
-    val_test_task_name_list=tasks,
+    test_with_answers_task_name_list=tasks,
     train_batch_size=train_batch_size,
     eval_batch_size=eval_batch_size,
     epochs=epochs,
@@ -148,11 +146,11 @@ run_args = main_runscript.RunConfiguration(
     eval_every_steps=eval_every_steps,
     do_train=do_train,
     do_val=do_val,
-    do_val_test=validate_test,
+    do_test_with_answers=validate_test,
     force_overwrite=force_overwrite,
     write_test_preds=write_test_preds,
     write_val_preds=write_val_preds,
-    write_val_test_preds=write_val_test_preds,
+    write_test_with_answers_preds=write_test_with_answers_preds,
     do_save_best=do_save_best,
     do_save_last=do_save_last,
     do_save=do_save,
@@ -186,15 +184,15 @@ if "test" in phases and write_test_preds:
         regime="test",
     )
 
-# if we want to write predictions to file on val_test dataset
-if "val_test" in phases and write_val_preds:
+# if we want to write predictions to file on test_with_answers dataset
+if "test_with_answers" in phases and write_val_preds:
     benchmark_submission_formatter.results(
         benchmark="SUPERGLUE",
         input_base_path=f"./runs/{output_name}/{name}",
         output_path=f"./runs/{output_name}/{name}",
         task_names=tasks,
-        preds="val_test_preds.p",
-        regime="val_test",
+        preds="test_with_answers_preds.p",
+        regime="test_with_answers",
     )
 
 # if we want to write predictions to file on val dataset

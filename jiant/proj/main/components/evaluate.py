@@ -28,13 +28,13 @@ def write_val_results(val_results_dict, metrics_aggregator, output_dir, verbose=
     py_io.write_json(data=full_results_to_write, path=os.path.join(output_dir, "val_metrics.json"))
 
 
-def write_val_test_results(val_test_results_dict, metrics_aggregator, output_dir, verbose=True):
+def write_test_with_answers_results(test_with_answers_results_dict, metrics_aggregator, output_dir, verbose=True):
     full_results_to_write = {
         "aggregated": jiant_task_sampler.compute_aggregate_major_metrics_from_results_dict(
-            metrics_aggregator=metrics_aggregator, results_dict=val_test_results_dict,
+            metrics_aggregator=metrics_aggregator, results_dict=test_with_answers_results_dict,
         ),
     }
-    for task_name, task_results in val_test_results_dict.items():
+    for task_name, task_results in test_with_answers_results_dict.items():
         task_results_to_write = {}
         if "loss" in task_results:
             task_results_to_write["loss"] = task_results["loss"]
@@ -46,7 +46,7 @@ def write_val_test_results(val_test_results_dict, metrics_aggregator, output_dir
     if verbose:
         print(metrics_str)
 
-    py_io.write_json(data=full_results_to_write, path=os.path.join(output_dir, "val_test_metrics.json"))
+    py_io.write_json(data=full_results_to_write, path=os.path.join(output_dir, "test_with_answers_metrics.json"))
 
 
 def write_preds(eval_results_dict, path):

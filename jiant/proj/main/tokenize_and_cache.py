@@ -154,7 +154,7 @@ def main(args: RunConfiguration):
         phases = args.phases.split(",")
     else:
         phases = args.phases
-    assert set(phases) <= {PHASE.TRAIN, PHASE.VAL, PHASE.TEST, PHASE.VAL_TEST}
+    assert set(phases) <= {PHASE.TRAIN, PHASE.VAL, PHASE.TEST, PHASE.TEST_WITH_ANSWERS}
 
     paths_dict = {}
     os.makedirs(args.output_dir, exist_ok=True)
@@ -207,12 +207,12 @@ def main(args: RunConfiguration):
         )
         paths_dict[PHASE.TEST] = os.path.join(args.output_dir, PHASE.TEST)
 
-    if PHASE.VAL_TEST in phases:
-        val_test_examples = task.get_val_test_examples()
+    if PHASE.TEST_WITH_ANSWERS in phases:
+        test_with_answers_examples = task.get_test_with_answers_examples()
         chunk_and_save(
             task=task,
-            phase=PHASE.VAL_TEST,
-            examples=val_test_examples,
+            phase=PHASE.TEST_WITH_ANSWERS,
+            examples=test_with_answers_examples,
             feat_spec=feat_spec,
             tokenizer=tokenizer,
             args=args,
@@ -222,16 +222,16 @@ def main(args: RunConfiguration):
             data=evaluation_scheme.get_labels_from_cache_and_examples(
                 task=task,
                 cache=shared_caching.ChunkedFilesDataCache(
-                    os.path.join(args.output_dir, PHASE.VAL_TEST)
+                    os.path.join(args.output_dir, PHASE.TEST_WITH_ANSWERS)
                 ),
-                examples=val_test_examples,
+                examples=test_with_answers_examples,
             ),
             chunk_size=args.chunk_size,
             data_args=args.to_dict(),
-            output_dir=os.path.join(args.output_dir, "val_test_labels"),
+            output_dir=os.path.join(args.output_dir, "test_with_answers_labels"),
         )
-        paths_dict[PHASE.VAL_TEST] = os.path.join(args.output_dir, PHASE.VAL_TEST)
-        paths_dict["val_test_labels"] = os.path.join(args.output_dir, "val_test_labels")
+        paths_dict[PHASE.TEST_WITH_ANSWERS] = os.path.join(args.output_dir, PHASE.TEST_WITH_ANSWERS)
+        paths_dict["test_with_answers_labels"] = os.path.join(args.output_dir, "test_with_answers_labels")
 
     if not args.skip_write_output_paths:
         py_io.write_json(data=paths_dict, path=os.path.join(args.output_dir, "paths.json"))

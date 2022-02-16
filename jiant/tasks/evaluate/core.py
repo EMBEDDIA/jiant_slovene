@@ -652,7 +652,7 @@ class ReCordLemmaEvaluationScheme(BaseEvaluationScheme):
         gold_label_list_of_sets = accumulator.get_gold_label_list()
 
         assert task.state is not None
-        examples = task.get_val_test_examples() if task.state == "val_test" else task.get_val_examples()
+        examples = task.get_test_with_answers_examples() if task.state == "test_with_answers" else task.get_val_examples()
         assert len(examples) == len(gold_label_list_of_sets)
         query_texts = {}
         for example in examples:
