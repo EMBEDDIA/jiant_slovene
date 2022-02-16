@@ -28,27 +28,27 @@ def main():
     parser.add_argument(
         "--input_base_path",
         required=True,
-        help="base input path of benchmark task predictions (contains the benchmark task folders)",
+        help="base input path to the folder that contain properly formatted folders of models (e.g. crosloengual__slobench__cb__epochs_10__train_batch_1__eval_batch_1__num_eval_steps_0)",
     )
     parser.add_argument("--output_path", required=True, help="output path for formatted files")
     parser.add_argument(
         "--benchmark", required=True, choices=SUPPORTED_BENCHMARKS, help="name of benchmark"
     )
-    parser.add_argument(
-        "--tasks", required=False, nargs="+", help="subset of benchmark tasks to format"
-    )
     args = parser.parse_args()
 
     benchmark = SUPPORTED_BENCHMARKS[args.benchmark]
 
-    if args.tasks:
-        assert args.tasks in benchmark.TASKS
-        task_names = args.tasks
-    else:
-        task_names = benchmark.TASKS
+    # input file paths
+    task_pred = {}
+    for root, dirs, files in os.walk(args.input_base_path):
+        if "test_preds.p" in files:
+            task_name = root.split('__')[2]
+            pred_file_path = os.path.join(root, "test_preds.p")
+            task_pred[task_name] = pred_file_path
 
-    for task_name in task_names:
-        input_filepath = os.path.join(args.input_base_path, task_name, "test_preds.p")
+    for task_name, pred_file_path in task_pred.items():
+        print(task_name, pred_file_path)
+        input_filepath = pred_file_path
         output_filepath = os.path.join(
             args.output_path, benchmark.BENCHMARK_SUBMISSION_FILENAMES[task_name]
         )
