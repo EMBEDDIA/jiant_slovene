@@ -20,12 +20,12 @@ pretrained_models = {
     "roberta": "roberta-base",
 }
 
-
-pretrained = pretrained_models["sloberta"]  # model to transformers model
+pretrained = pretrained_models["crosloengual"]  # model to transformers model
+path_to_pretrained_weights = "/home/azagar/myfiles/jiant_slovene_v2/trained_models/crosloengual_1/crosloengual__slobench__cb__epochs_10__train_batch_1__eval_batch_1__num_eval_steps_0/crosloengual/slobench/best_model.p"
 output_name = list(pretrained_models.keys())[list(pretrained_models.values()).index(pretrained)]  # name of the model
-name = "human_translation"  # name of the directory containing datasets and config files
+name = "slobench"  # name of the directory containing datasets and config files
 
-tasks = ["multirc"]  # list of tasks - can also be ["boolq", "cb", "copa", "multirc", "rte", "wsc"] for multitask
+tasks = ["cb"]  # list of tasks - can also be ["boolq", "cb", "copa", "multirc", "rte", "wsc"] for multitask
 
 # name of output directory
 if len(tasks) == 1:
@@ -69,12 +69,12 @@ eval_subset_num = None
 model_load_mode = "partial"  # If we wish to load saved model from jiant we have to set model_load_mode to "partial"
 
 do_train = False
-do_val = True
+do_val = False
 validate_test = True
 force_overwrite = True
 write_test_preds = True
-write_val_preds = True
-write_val_test_preds = True
+write_val_preds = False
+write_val_test_preds = False
 do_save = False
 do_save_best = True
 do_save_last = False
@@ -89,7 +89,7 @@ export_model.export_model(
 # Tokenize and cache each task
 for task_name in tasks:
     tokenize_and_cache.main(tokenize_and_cache.RunConfiguration(
-        task_config_path=f"./tasks/{name}/configs/{task_name}_config.json",
+        task_config_path=f"./tasks/configs/{name}/{task_name}_config.json",
         hf_pretrained_model_name_or_path=pretrained,
         output_dir=f"./cache/{task_name}",
         phases=phases,
@@ -100,7 +100,7 @@ for task_name in tasks:
 
 # Make configuration
 jiant_run_config = configurator.SimpleAPIMultiTaskConfigurator(
-    task_config_base_path=f"./tasks/{name}/configs",
+    task_config_base_path=f"./tasks/configs/{name}",
     task_cache_base_path="./cache",
     train_task_name_list=tasks,
     val_task_name_list=tasks,
@@ -118,7 +118,6 @@ os.makedirs("./run_configs/", exist_ok=True)
 os.makedirs(f"./runs/{output_name}/{name}", exist_ok=True)
 py_io.write_json(jiant_run_config, "./run_configs/jiant_run_config.json")
 display.show_json(jiant_run_config)
-
 # If we want to make evaluation after each epoch we overwrite graph_steps to be equal as the number of steps in one epoch
 if graph_per_epoch:
     with open("./run_configs/jiant_run_config.json", "r") as json_file:
@@ -137,8 +136,7 @@ run_args = main_runscript.RunConfiguration(
     output_dir=f"./runs/{output_name}/{name}",
     model_load_mode=model_load_mode,
     hf_pretrained_model_name_or_path=pretrained,
-    model_path="./trained_models/sloberta__human_translation__multirc__epochs_10__train_batch_4__eval_batch_8__num_eval_steps_0_v2/sloberta/human_translation/model__after_6_epoch.p",
-    #model_path=f"./models/{output_name}/model/model.p",
+    model_path=path_to_pretrained_weights,
     model_config_path=f"./models/{output_name}/model/config.json",
     learning_rate=learning_rate,
     eval_every_steps=eval_every_steps,
@@ -210,7 +208,7 @@ if "val" in phases and do_val:
 do_backup = True
 
 if do_backup:
-    bak_folder = f"./trained_models/{output_name}__{name}__{task_name}__epochs_{epochs}__train_batch_{train_batch_size}__eval_batch_{eval_batch_size}__num_eval_steps_{eval_every_steps}"
+    bak_folder = f"./evaluated_models/{output_name}__{name}__{task_name}__epochs_{epochs}__train_batch_{train_batch_size}__eval_batch_{eval_batch_size}__num_eval_steps_{eval_every_steps}"
 
     if os.path.isdir(bak_folder):
         shutil.rmtree(bak_folder)

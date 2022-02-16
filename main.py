@@ -11,15 +11,15 @@ import shutil
 import json
 from make_plots import create
 
-os.environ['CUDA_VISIBLE_DEVICES'] = str(1)
+# os.environ['CUDA_VISIBLE_DEVICES'] = str(3)
 
 # Dict to huggingface name of the model or local directory containing model (sloberta)
 pretrained_models = {
-    # "sloberta": "./models/pretrained/sloberta",
+    "sloberta": "./models/sloberta2.0",
     "crosloengual": "EMBEDDIA/crosloengual-bert",
-    # "multilingual": "bert-base-multilingual-cased",
-    # "roberta": "roberta-base",
-    # "xlm-roberta-base": 'xlm-roberta-base'
+    "multilingual": "bert-base-multilingual-cased",
+    "roberta": "roberta-base",
+    "xlm-roberta-base": 'xlm-roberta-base',
 }
 
 
@@ -39,8 +39,8 @@ else:
 
 # Here is where we set batch size and number of epochs and declare whether we want to use GPU or not. In the phases
 # list we declare which phase should the tokenizer tokenize.
-train_batch_size = 1
-eval_batch_size = 1
+train_batch_size = 4
+eval_batch_size = 4
 epochs = 10
 num_gpus = 1
 phases = ["train", "val", "test", "val_test"]
@@ -69,7 +69,8 @@ max_grad_norm = 1.0
 eval_every_steps = 0
 no_improvements_for_n_evals = 0
 eval_subset_num = None
-model_load_mode = "from_transformers"  # If we wish to load saved model from jiant we have to set model_load_mode to "partial"
+# model_load_mode = "from_transformers"  # If we wish to load saved model from jiant we have to set model_load_mode to "partial"
+model_load_mode = "partial"
 
 do_train = True
 do_val = True
@@ -141,7 +142,6 @@ run_args = main_runscript.RunConfiguration(
     output_dir=f"./runs/{output_name}/{name}",
     model_load_mode=model_load_mode,
     hf_pretrained_model_name_or_path=pretrained,
-    #  model_path="./runs/sloberta/human_translation/best_model.p", -> example if we want to load trained model from jiant
     model_path=f"./models/{output_name}/model/model.p",
     model_config_path=f"./models/{output_name}/model/config.json",
     learning_rate=learning_rate,
