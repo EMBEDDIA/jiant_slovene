@@ -58,13 +58,18 @@ class SuperglueBenchmark(Benchmark):
         "rte": "RTE.jsonl",
         "wic": "WiC.jsonl",
         "wsc": "WSC.jsonl",
+        "wsc-syntactic": "WSC-syntactic.jsonl",
+        "wsc-semantic": "WSC-semantic.jsonl",
         "superglue_axb": "AX-b.jsonl",
         "superglue_axg": "AX-g.jsonl",
     }
 
     @classmethod
     def write_predictions(cls, task_name: str, input_filepath: str, output_filepath: str):
-        task = retrieval.get_task_class(task_name)
+        if task_name in ['wsc-semantic', 'wsc-syntactic']:
+            task = retrieval.get_task_class('wsc')
+        else:
+            task = retrieval.get_task_class(task_name)
         task_preds = torch.load(input_filepath)[task_name]
         formatted_preds = task.super_glue_format_preds(task_preds)
         py_io.write_jsonl(
